@@ -188,50 +188,7 @@ function showSection(section) {
     }
 }
 
-function switchParentTab(parent) {
-    // Close mobile nav if open
-    closeMobileNav();
 
-    // Update sidebar nav items
-    document.querySelectorAll('.nav-item.sub-nav').forEach(item => {
-        item.classList.toggle('active', item.dataset.parent === parent);
-    });
-
-    // Update sub-tabs visibility
-    document.querySelectorAll('.analysis-tabs .sub-tabs').forEach(subtab => {
-        subtab.classList.remove('active');
-    });
-    const activeSubtabs = document.getElementById(`${parent}-subtabs`);
-    if (activeSubtabs) {
-        activeSubtabs.classList.add('active');
-    }
-
-    // Get the first sub-tab of this parent and activate it
-    const firstSubTab = activeSubtabs?.querySelector('.sub-tab-btn');
-    if (firstSubTab) {
-        const tabId = firstSubTab.dataset.tab;
-        switchSubTab(tabId);
-    }
-}
-
-function switchSubTab(tabId) {
-    // Update sub-tab buttons
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-    });
-
-    // Update tab content
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    const activeContent = document.getElementById(`${tabId}-tab`);
-    if (activeContent) {
-        activeContent.classList.add('active');
-    }
-
-    // Apply focus mode highlighting if needed
-    applyFocusHighlighting();
-}
 
 // Tier display names
 const tierDisplayNames = {
@@ -834,7 +791,6 @@ const parentTabMapping = {
 // Current active state
 let currentParentTab = 'overview';
 let currentSubTab = 'summary';
-let focusedFormation = null;
 
 // Setup event listeners
 function setupEventListeners() {
@@ -895,12 +851,6 @@ function setupEventListeners() {
         btn.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
     });
 
-    // Focus mode dropdown
-    document.getElementById('focusFormation').addEventListener('change', (e) => {
-        focusedFormation = e.target.value || null;
-        applyFocusMode();
-    });
-
     // Metric select dropdowns
     Object.keys(metricDefinitions).forEach(category => {
         if (category === 'summary') return;
@@ -915,7 +865,15 @@ function setupEventListeners() {
 function switchParentTab(parentTab) {
     currentParentTab = parentTab;
 
-    // Update parent tab buttons
+    // Close mobile nav if open
+    closeMobileNav();
+
+    // Update sidebar nav items (categories)
+    document.querySelectorAll('.nav-item.sub-nav').forEach(item => {
+        item.classList.toggle('active', item.dataset.parent === parentTab);
+    });
+
+    // Update parent tab buttons (if they exist)
     document.querySelectorAll('.parent-tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.parent === parentTab);
     });
@@ -934,175 +892,22 @@ function switchParentTab(parentTab) {
 function switchSubTab(subTab) {
     currentSubTab = subTab;
 
-    // Update sub-tab buttons within current parent
-    const currentSubTabs = document.getElementById(`${currentParentTab}-subtabs`);
-    if (currentSubTabs) {
-        currentSubTabs.querySelectorAll('.sub-tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === subTab);
-        });
-    }
-
-    // Switch tab content
-    switchTab(subTab);
-}
-
-// Apply focus mode to all tables
-function applyFocusMode() {
-    const focusCard = document.getElementById('focusCard');
-    const focusModeHint = document.getElementById('focusModeHint');
-
-    if (focusedFormation) {
-        // Show focus card
-        focusCard.style.display = 'block';
-        focusModeHint.textContent = `Showing detailed analysis for ${focusedFormation}`;
-        document.getElementById('focusFormationName').textContent = focusedFormation;
-        generateFocusCard(focusedFormation);
-
-        // Highlight rows in all tables
-        document.querySelectorAll('.heatmap-table tbody tr').forEach(row => {
-            const formationCell = row.querySelector('.formation-col');
-            if (formationCell) {
-                const rowFormation = formationCell.textContent.split('(')[0].trim();
-                if (rowFormation === focusedFormation) {
-                    row.classList.add('focused');
-                    row.classList.remove('dimmed');
-                } else {
-                    row.classList.add('dimmed');
-                    row.classList.remove('focused');
-                }
-            }
-        });
-    } else {
-        // Hide focus card
-        focusCard.style.display = 'none';
-        focusModeHint.textContent = 'Select a formation to see its detailed performance report';
-
-        // Remove all highlighting
-        document.querySelectorAll('.heatmap-table tbody tr').forEach(row => {
-            row.classList.remove('focused', 'dimmed');
-        });
-    }
-}
-
-// Generate focus card content
-function generateFocusCard(formation) {
-    const formationData = comparisonData.find(f => f.formation === formation);
-    if (!formationData) return;
-
-    const container = document.getElementById('focusCardContent');
-    const data = formationData.data;
-
-    // Collect key stats
-    const battleStats = data.battle_summary;
-    const shooting = data.shooting || {};
-    const passing = data.passing || {};
-    const possession = data.possession || {};
-    const defensive = data.defensive || {};
-
-    // Find strengths and weaknesses for this formation
-    const strengths = [];
-    const weaknesses = [];
-
-    Object.keys(metricDefinitions).forEach(category => {
-        if (category === 'summary') return;
-        const def = metricDefinitions[category];
-        const source = data[def.source];
-        if (!source) return;
-
-        def.metrics.forEach(metric => {
-            const perc = source[`${metric}_formation_percentile`];
-            if (perc !== undefined) {
-                const isInverted = invertedMetrics.has(metric);
-
-                if (isInverted) {
-                    // Inverted: high percentile = weakness, low percentile = strength
-                    if (perc >= 50) {
-                        weaknesses.push({ metric: def.labels[metric], percentile: perc, category });
-                    }
-                    if (perc <= 40 && perc >= 20) {
-                        strengths.push({ metric: def.labels[metric], percentile: perc, category });
-                    }
-                } else {
-                    // Normal: high percentile = strength, low percentile = weakness
-                    if (perc >= 50) {
-                        strengths.push({ metric: def.labels[metric], percentile: perc, category });
-                    }
-                    if (perc <= 40 && perc >= 20) {
-                        weaknesses.push({ metric: def.labels[metric], percentile: perc, category });
-                    }
-                }
-            }
-        });
+    // Update all sub-tab buttons
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === subTab);
     });
 
-    // Sort strengths by percentile (for inverted, lower is better so we show those first)
-    strengths.sort((a, b) => b.percentile - a.percentile);
-    // Sort weaknesses by percentile (for inverted, higher is worse so we show those first)
-    weaknesses.sort((a, b) => b.percentile - a.percentile);
+    // Update tab content visibility
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    const activeContent = document.getElementById(`${subTab}-tab`);
+    if (activeContent) {
+        activeContent.classList.add('active');
+    }
 
-    let html = `
-        <div class="focus-stat-group">
-            <h4>Battle Results</h4>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Win Rate</span>
-                <span class="focus-stat-value ${battleStats.win_rate >= 50 ? 'high' : battleStats.win_rate >= 30 ? 'mid' : 'low'}">${battleStats.win_rate.toFixed(1)}%</span>
-            </div>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Draw Rate</span>
-                <span class="focus-stat-value mid">${battleStats.draw_rate.toFixed(1)}%</span>
-            </div>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Loss Rate</span>
-                <span class="focus-stat-value ${battleStats.loss_rate <= 30 ? 'high' : battleStats.loss_rate <= 50 ? 'mid' : 'low'}">${battleStats.loss_rate.toFixed(1)}%</span>
-            </div>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Sample Size</span>
-                <span class="focus-stat-value">${battleStats.total_matches} matches</span>
-            </div>
-        </div>
-
-        <div class="focus-stat-group">
-            <h4>Key Metrics</h4>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">xG (Expected Goals)</span>
-                <span class="focus-stat-value">${shooting.avg_xg?.toFixed(2) || '-'}</span>
-            </div>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Possession</span>
-                <span class="focus-stat-value">${possession.avg_possession?.toFixed(1) || '-'}%</span>
-            </div>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Pass Accuracy</span>
-                <span class="focus-stat-value">${passing.avg_passes_pct?.toFixed(1) || '-'}%</span>
-            </div>
-            <div class="focus-stat-row">
-                <span class="focus-stat-label">Tackles Won</span>
-                <span class="focus-stat-value">${defensive.avg_tackles_won?.toFixed(1) || '-'}</span>
-            </div>
-        </div>
-
-        <div class="focus-stat-group">
-            <h4>Top Strengths (>50th percentile)</h4>
-            ${strengths.length > 0 ? strengths.slice(0, 5).map(s => `
-                <div class="focus-stat-row">
-                    <span class="focus-stat-label">${s.metric}</span>
-                    <span class="focus-stat-value high">${s.percentile.toFixed(0)}th</span>
-                </div>
-            `).join('') : '<div class="focus-stat-row"><span class="focus-stat-label">No notable strengths</span></div>'}
-        </div>
-
-        <div class="focus-stat-group">
-            <h4>Weaknesses (20-40th percentile)</h4>
-            ${weaknesses.length > 0 ? weaknesses.slice(0, 5).map(w => `
-                <div class="focus-stat-row">
-                    <span class="focus-stat-label">${w.metric}</span>
-                    <span class="focus-stat-value low">${w.percentile.toFixed(0)}th</span>
-                </div>
-            `).join('') : '<div class="focus-stat-row"><span class="focus-stat-label">No significant weaknesses</span></div>'}
-        </div>
-    `;
-
-    container.innerHTML = html;
+    // Switch tab content (builds heatmaps, gauges, etc.)
+    switchTab(subTab);
 }
 
 // Update available formations based on opponent selection
@@ -1254,14 +1059,6 @@ function runAnalysis() {
     document.getElementById('resultsSubtitle').textContent =
         `Comparing ${comparisonData.length} formations from ${tierDisplayNames[yourTier]} tier`;
 
-    // Populate focus mode dropdown
-    populateFocusDropdown();
-
-    // Reset focus mode
-    focusedFormation = null;
-    document.getElementById('focusFormation').value = '';
-    document.getElementById('focusCard').style.display = 'none';
-
     // Reset to default tabs
     currentParentTab = 'overview';
     currentSubTab = 'summary';
@@ -1281,19 +1078,6 @@ function runAnalysis() {
         navAnalysis.disabled = false;
     }
     showSection('analysis');
-}
-
-// Populate focus mode dropdown
-function populateFocusDropdown() {
-    const select = document.getElementById('focusFormation');
-    select.innerHTML = '<option value="">Compare All Formations</option>';
-
-    comparisonData.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.formation;
-        option.textContent = `${item.formation} (${item.data.battle_summary.win_rate.toFixed(1)}% wins)`;
-        select.appendChild(option);
-    });
 }
 
 // Build scatter chart
@@ -1510,12 +1294,14 @@ function buildSummaryDonuts(container) {
                         if (perc >= 50) {
                             weaknessesByCategory[category].push({
                                 metric: def.labels[metric] || metric,
+                                metricKey: metric,
                                 percentile: perc
                             });
                         }
                         if (perc <= 40 && perc >= 20) {
                             strengthsByCategory[category].push({
                                 metric: def.labels[metric] || metric,
+                                metricKey: metric,
                                 percentile: perc
                             });
                         }
@@ -1524,12 +1310,14 @@ function buildSummaryDonuts(container) {
                         if (perc >= 50) {
                             strengthsByCategory[category].push({
                                 metric: def.labels[metric] || metric,
+                                metricKey: metric,
                                 percentile: perc
                             });
                         }
                         if (perc <= 40 && perc >= 20) {
                             weaknessesByCategory[category].push({
                                 metric: def.labels[metric] || metric,
+                                metricKey: metric,
                                 percentile: perc
                             });
                         }
@@ -1551,11 +1339,14 @@ function buildSummaryDonuts(container) {
                     <div class="sw-category">
                         <div class="sw-category-title">${categoryNames[category]}</div>
                         <div class="sw-items">
-                            ${items.map(s => `
-                                <span class="sw-item strength">
+                            ${items.map(s => {
+                                const explanation = metricExplanations[s.metricKey] || '';
+                                return `
+                                <span class="sw-item strength has-tooltip">
                                     ${s.metric} <span class="sw-perc">${s.percentile.toFixed(0)}th</span>
+                                    ${explanation ? `<span class="sw-tooltip">${explanation}</span>` : ''}
                                 </span>
-                            `).join('')}
+                            `}).join('')}
                         </div>
                     </div>
                 `;
@@ -1571,11 +1362,14 @@ function buildSummaryDonuts(container) {
                     <div class="sw-category">
                         <div class="sw-category-title">${categoryNames[category]}</div>
                         <div class="sw-items">
-                            ${items.map(w => `
-                                <span class="sw-item weakness">
+                            ${items.map(w => {
+                                const explanation = metricExplanations[w.metricKey] || '';
+                                return `
+                                <span class="sw-item weakness has-tooltip">
                                     ${w.metric} <span class="sw-perc">${w.percentile.toFixed(0)}th</span>
+                                    ${explanation ? `<span class="sw-tooltip">${explanation}</span>` : ''}
                                 </span>
-                            `).join('')}
+                            `}).join('')}
                         </div>
                     </div>
                 `;
@@ -1614,11 +1408,11 @@ function buildSummaryDonuts(container) {
                     </div>
                     <div class="donut-sw-section">
                         <div class="sw-column strengths">
-                            <div class="sw-header">💪 Strengths (>50th)</div>
+                            <div class="sw-header">💪 Strengths</div>
                             ${strengthsHtml || '<div class="sw-empty">No notable strengths</div>'}
                         </div>
                         <div class="sw-column weaknesses">
-                            <div class="sw-header">⚠️ Weaknesses (20-40th)</div>
+                            <div class="sw-header">⚠️ Weaknesses</div>
                             ${weaknessesHtml || '<div class="sw-empty">No notable weaknesses</div>'}
                         </div>
                     </div>
@@ -1810,11 +1604,11 @@ function updateGauge(category) {
     html += `
         </div>
         <div class="gauge-labels">
-            <span>0 (Worst)</span>
+            <span>0 (Lowest)</span>
             <span>35</span>
             <span>50</span>
             <span>65</span>
-            <span>100 (Best)</span>
+            <span>100 (Highest)</span>
         </div>
         ${isInverted ? '<div class="gauge-inverted-note">↑ Lower values are better for this metric</div>' : ''}
     `;
@@ -2060,7 +1854,7 @@ function generateCategoryInsights(category) {
     if (strengths.length > 0) {
         html += `
             <div class="sw-section">
-                <h4>Notable Strengths (>50th percentile)</h4>
+                <h4>Notable Strengths</h4>
                 <div class="sw-list">
                     ${strengths.slice(0, 8).map(s => `
                         <span class="sw-tag strength">
@@ -2078,7 +1872,7 @@ function generateCategoryInsights(category) {
     if (weaknesses.length > 0) {
         html += `
             <div class="sw-section">
-                <h4>Notable Weaknesses (20-40th percentile)</h4>
+                <h4>Notable Weaknesses</h4>
                 <div class="sw-list">
                     ${weaknesses.slice(0, 8).map(w => `
                         <span class="sw-tag weakness">

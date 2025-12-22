@@ -31,8 +31,8 @@
                     </select>
                 </div>
                 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" data-i18n-title="header.toggleTheme" title="Toggle light/dark mode">
-                    <span class="theme-icon light">☀️</span>
-                    <span class="theme-icon dark">🌙</span>
+                    <img src="icons/light-mode.svg" alt="Light mode" class="theme-icon light svg-icon">
+                    <img src="icons/dark-mode.svg" alt="Dark mode" class="theme-icon dark svg-icon">
                 </button>
                 <button class="header-btn" onclick="document.getElementById('guideModal').style.display='flex';">
                     <span class="btn-icon">?</span>
@@ -53,30 +53,30 @@
             <div class="sidebar-section">
                 <div class="sidebar-title" data-i18n="nav.navigation">Navigation</div>
                 <button class="nav-item active" data-section="context" onclick="showSection('context')">
-                    <span class="nav-icon">⚙️</span>
+                    <img src="icons/setup.svg" alt="Setup" class="nav-icon svg-icon">
                     <span class="nav-label" data-i18n="nav.setup">Setup</span>
                 </button>
                 <button class="nav-item" data-section="analysis" onclick="showSection('analysis')" id="navAnalysis" disabled>
-                    <span class="nav-icon">📊</span>
+                    <img src="icons/analysis.svg" alt="Analysis" class="nav-icon svg-icon">
                     <span class="nav-label" data-i18n="nav.analysis">Analysis</span>
                 </button>
             </div>
             <div class="sidebar-section" id="analysisCategoriesNav" style="display: none;">
                 <div class="sidebar-title" data-i18n="nav.categories">Categories</div>
                 <button class="nav-item sub-nav active" data-parent="overview" onclick="switchParentTab('overview')">
-                    <span class="nav-icon">📋</span>
+                    <img src="icons/overview.svg" alt="Overview" class="nav-icon svg-icon">
                     <span class="nav-label" data-i18n="nav.overview">Overview</span>
                 </button>
                 <button class="nav-item sub-nav" data-parent="attack" onclick="switchParentTab('attack')">
-                    <span class="nav-icon">⚽</span>
+                    <img src="icons/attack.svg" alt="Attack" class="nav-icon svg-icon">
                     <span class="nav-label" data-i18n="nav.attack">Attack</span>
                 </button>
                 <button class="nav-item sub-nav" data-parent="buildup" onclick="switchParentTab('buildup')">
-                    <span class="nav-icon">🔄</span>
+                    <img src="icons/build-up.svg" alt="Build-up" class="nav-icon svg-icon">
                     <span class="nav-label" data-i18n="nav.buildup">Build-up</span>
                 </button>
                 <button class="nav-item sub-nav" data-parent="defense" onclick="switchParentTab('defense')">
-                    <span class="nav-icon">🛡️</span>
+                    <img src="icons/defense.svg" alt="Defense" class="nav-icon svg-icon">
                     <span class="nav-label" data-i18n="nav.defense">Defense</span>
                 </button>
             </div>
@@ -95,11 +95,11 @@
                 </div>
 
                 <div class="context-grid">
-                    <!-- Fixed Opponent Panel -->
+                    <!-- Opponent Panel -->
                     <div class="context-card opponent-card">
                         <div class="card-header">
-                            <span class="card-icon">🎯</span>
-                            <h3 data-i18n="setup.fixedOpponent">Fixed Opponent</h3>
+                            <img src="icons/opponent.svg" alt="Opponent" class="card-icon svg-icon">
+                            <h3 data-i18n="setup.fixedOpponent">Opponent</h3>
                         </div>
                         <div class="card-body">
                             <div class="form-group">
@@ -120,7 +120,7 @@
                     <!-- Your Context Panel -->
                     <div class="context-card your-card">
                         <div class="card-header">
-                            <span class="card-icon">👤</span>
+                            <img src="icons/your-context.svg" alt="Your Context" class="card-icon svg-icon">
                             <h3 data-i18n="setup.yourContext">Your Context</h3>
                         </div>
                         <div class="card-body">
@@ -137,7 +137,7 @@
                 <!-- Formation Selector -->
                 <div class="formations-card" id="formationSelector" style="display: none;">
                     <div class="card-header">
-                        <span class="card-icon">📋</span>
+                        <img src="icons/overview.svg" alt="Formations" class="card-icon svg-icon">
                         <h3><span data-i18n="setup.yourFormationsVs">Your Formations vs</span> <span id="opponentLabel" data-i18n="setup.opponent">Opponent</span></h3>
                     </div>
                     <div class="formations-controls">
@@ -165,7 +165,7 @@
                         <!-- Formations will be populated here -->
                     </div>
                     <button id="analyzeBtn" class="analyze-btn">
-                        <span class="btn-icon">🔍</span>
+                        <img src="icons/analysis.svg" alt="Analyze" class="btn-icon svg-icon">
                         <span data-i18n="setup.analyzeBtn">Analyze Selected Formations</span>
                     </button>
                 </div>
@@ -176,28 +176,6 @@
                 <div class="section-header">
                     <h2><span data-i18n="analysis.title">Analysis:</span> <span id="resultOpponentLabel" data-i18n="setup.opponent">Opponent</span></h2>
                     <p class="section-desc" id="resultsSubtitle"></p>
-                </div>
-
-                <!-- Focus Mode Bar -->
-                <div class="focus-bar">
-                    <div class="focus-left">
-                        <label data-i18n="analysis.viewMode">View Mode:</label>
-                        <select id="focusFormation" class="focus-select">
-                            <option value="" data-i18n="analysis.compareAll">Compare All Formations</option>
-                        </select>
-                    </div>
-                    <div class="focus-hint" id="focusModeHint" data-i18n="analysis.selectFormationHint">
-                        Select a formation to see detailed performance
-                    </div>
-                </div>
-
-                <!-- Focus Card -->
-                <div class="focus-card" id="focusCard" style="display: none;">
-                    <div class="focus-card-header">
-                        <h3 id="focusFormationName">4-3-3</h3>
-                        <span class="focus-card-badge" id="focusBadge" data-i18n="analysis.focusedView">Focused View</span>
-                    </div>
-                    <div class="focus-card-content" id="focusCardContent"></div>
                 </div>
 
                 <!-- Sub-tabs for current category -->
@@ -552,7 +530,6 @@ CDM  RB  CDM  CAM
                             <div class="takeaway-item"><span class="takeaway-icon">✓</span><span>Percentiles show performance <strong>relative to that formation</strong></span></div>
                             <div class="takeaway-item"><span class="takeaway-icon">✓</span><span>High percentile = formation is <strong>overperforming</strong></span></div>
                             <div class="takeaway-item"><span class="takeaway-icon">✓</span><span>Compare multiple formations to find the <strong>best fit</strong></span></div>
-                            <div class="takeaway-item"><span class="takeaway-icon">✓</span><span>Use Focus Mode to analyze one formation in depth</span></div>
                         </div>
                         <div class="final-note"><p>The tool provides the framework.<br><strong>You bring the tactical creativity.</strong></p></div>
                     </div>
