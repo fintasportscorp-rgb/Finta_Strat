@@ -25,8 +25,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 border-b border-edge bg-canvas/90 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-2 px-4 md:px-6 lg:px-8">
-        <a href="/" className="display-caps shrink-0 text-lg font-extrabold text-ink">
-          Finta&nbsp;<span className="text-accent">Strat</span>
+        <a href="/" className="flex shrink-0 items-center">
+          <img src="/logo.png" alt="Finta Strat" className="h-12 w-auto" />
         </a>
 
         {matchupLabel && (
