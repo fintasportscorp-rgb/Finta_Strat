@@ -12,7 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useI18n } from '@/lib/i18n';
-import { usePrefersReducedMotion } from '@/lib/theme';
+import { usePrefersReducedMotion, useTheme } from '@/lib/theme';
 import { seriesColor } from '../metrics';
 import type { FormationMatchup } from '../types';
 
@@ -30,6 +30,11 @@ interface ScatterPoint {
 const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
   const { t } = useI18n();
   const reducedMotion = usePrefersReducedMotion();
+  const { theme } = useTheme();
+
+  const isDark = theme === 'dark';
+  const axisTextColor = isDark ? '#93a8c7' : '#44587a';
+  const labelColor = isDark ? '#e8f0fc' : '#0e1b2e';
 
   const points: ScatterPoint[] = useMemo(
     () =>
@@ -52,7 +57,7 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
   }, [points]);
 
   const axisStyle = {
-    fill: 'var(--chart-axis-text)',
+    fill: axisTextColor,
     fontFamily: 'var(--font-stat)',
     fontSize: 12,
   };
@@ -117,7 +122,7 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
                 dataKey="formation"
                 position="top"
                 offset={10}
-                style={{ ...axisStyle, fill: 'var(--text-primary)', fontWeight: 600 }}
+                style={{ ...axisStyle, fill: labelColor, fontWeight: 600 }}
               />
               {points.map((point, i) => (
                 <Cell
