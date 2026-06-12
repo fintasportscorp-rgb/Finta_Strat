@@ -124,13 +124,24 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
             <Scatter data={points} isAnimationActive={!reducedMotion}>
               <LabelList
                 dataKey="formation"
-                position="top"
-                offset={10}
-                style={{
-                  fill: 'var(--text-primary)',
-                  fontFamily: 'var(--font-stat)',
-                  fontSize: 12,
-                  fontWeight: 600,
+                content={(props: any) => {
+                  const { x, y, value } = props;
+                  if (x == null || y == null || !value) return null;
+                  return (
+                    <text
+                      x={Number(x)}
+                      y={Number(y) - 14}
+                      textAnchor="middle"
+                      style={{
+                        fill: 'var(--text-primary)',
+                        fontFamily: 'var(--font-stat)',
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {String(value)}
+                    </text>
+                  );
                 }}
               />
               {points.map((point, i) => (
