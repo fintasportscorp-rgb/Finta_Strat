@@ -1,0 +1,21 @@
+[
+  "avg_miscontrols",
+  "avg_dispossessed",
+  "avg_take_ons_tackled",
+  "avg_take_ons_tackled_pct",
+  "avg_challenges_lost",
+  "avg_errors",
+  "avg_gk_shots_on_target_against",
+  "avg_gk_goals_against",
+  "avg_gk_pens_allowed",
+  "avg_passes_offsides",
+  "avg_passes_blocked",
+  "avg_cards_yellow",
+  "avg_cards_red",
+  "avg_cards_yellow_red",
+  "avg_fouls",
+  "avg_offsides",
+  "avg_pens_conceded",
+  "avg_own_goals",
+  "avg_aerials_lost"
+]

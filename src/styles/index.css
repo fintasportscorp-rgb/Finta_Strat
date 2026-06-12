@@ -1,0 +1,242 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ---------------------------------------------------------------------------
+ * Finta Strat — "Night Match Control Room" design tokens
+ * Light mode = daylight pressbox. Dark mode = night match command center.
+ * Semantic vars switch per theme; Tailwind utilities map onto them in @theme.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  /* Light (daylight pressbox) */
+  --background: #f4f7fc;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #d6e0ee;
+  --border-strong: #aabcd6;
+  --text-primary: #0e1b2e; /* ~17:1 on surface */
+  --text-muted: #44587a; /* ~7.2:1 on surface */
+  --accent: #0e68d6;
+  --accent-hover: #0b52ac;
+  --on-accent: #ffffff;
+  --win: #047857;
+  --draw: #b45309;
+  --loss: #be123c;
+  --focus: #0e68d6;
+
+  --band-below: #c2410c;
+  --band-above: #0f766e;
+
+  --shadow-card: 0 1px 2px rgb(14 27 46 / 0.06), 0 4px 12px rgb(14 27 46 / 0.08);
+  --shadow-raised: 0 2px 4px rgb(14 27 46 / 0.08), 0 12px 32px rgb(13 67 133 / 0.14);
+
+  --chart-1: #0e68d6;
+  --chart-2: #0f766e;
+  --chart-3: #b45309;
+  --chart-4: #7c3aed;
+  --chart-5: #be123c;
+  --chart-6: #4d7c0f;
+  --chart-grid: #e4ebf5;
+  --chart-axis-text: #44587a;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --background: #070d1a;
+  --surface: #0c1526;
+  --surface-raised: #122036;
+  --border: #1f3252;
+  --border-strong: #2b3d5c;
+  --text-primary: #e8f0fc; /* ~16:1 on surface */
+  --text-muted: #93a8c7; /* ~7.5:1 on surface */
+  --accent: #47a0ff;
+  --accent-hover: #7fbfff;
+  --on-accent: #081f3d;
+  --win: #34d399;
+  --draw: #fbbf24;
+  --loss: #fb7185;
+  --focus: #7fbfff;
+
+  --band-below: #fb923c;
+  --band-above: #2dd4bf;
+
+  --shadow-card: 0 0 0 1px rgb(31 50 82 / 0.6), 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-raised: 0 0 0 1px rgb(43 61 92 / 0.7), 0 16px 40px rgb(0 0 0 / 0.55);
+
+  --chart-1: #47a0ff;
+  --chart-2: #2dd4bf;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #fb7185;
+  --chart-6: #a3e635;
+  --chart-grid: #1f3252;
+  --chart-axis-text: #93a8c7;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  /* Primitive Finta Blue (theme-stable) */
+  --color-blue-50: #eef6ff;
+  --color-blue-100: #d9ecff;
+  --color-blue-200: #b3d9ff;
+  --color-blue-300: #7fbfff;
+  --color-blue-400: #47a0ff;
+  --color-blue-500: #1e83f7;
+  --color-blue-600: #0e68d6;
+  --color-blue-700: #0b52ac;
+  --color-blue-800: #0d4385;
+  --color-blue-900: #0f3866;
+  --color-blue-950: #081f3d;
+
+  /* Semantic */
+  --color-canvas: var(--background);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-edge: var(--border);
+  --color-edge-strong: var(--border-strong);
+  --color-ink: var(--text-primary);
+  --color-ink-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-win: var(--win);
+  --color-draw: var(--draw);
+  --color-loss: var(--loss);
+  --color-focus: var(--focus);
+  --color-band-below: var(--band-below);
+  --color-band-above: var(--band-above);
+
+  --font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+  --font-stat: 'Atkinson Hyperlegible Mono', 'Spline Sans Mono', ui-monospace, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+
+  --ease-out-quart: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ---------------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------------- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--background);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+/* Faint tactics-board substrate behind the app */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 50% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 55%),
+    linear-gradient(color-mix(in oklab, var(--accent) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--accent) 5%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 56px 56px, 56px 56px;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+button,
+[role='button'],
+[role='checkbox'],
+select,
+label[for] {
+  cursor: pointer;
+}
+
+/* Broadcast-scoreboard display caps for big headings */
+.display-caps {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.font-stat {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Horizontal scroll containers (pill nav, heatmap) */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card entrance */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.3s var(--ease-out-quart) both;
+}
+
+/* Gauge bar fill sweep */
+@keyframes bar-sweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.bar-sweep {
+  transform-origin: left center;
+  animation: bar-sweep 0.3s var(--ease-out-quart) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
