@@ -3,14 +3,15 @@ import { ArrowRight } from 'lucide-react';
 import Select from '~components/Select';
 import SegmentedControl from '~components/SegmentedControl';
 import { useI18n } from '@/lib/i18n';
-import { getOpponentFormations, sortMatchups } from '../analysis';
+import { sortMatchups } from '../analysis';
 import { tierLabelKeys } from '../metrics';
-import { TIERS, type FormationData, type FormationMatchup, type SortMode, type Tier } from '../types';
+import { TIERS, type FormationMatchup, type SortMode, type Tier } from '../types';
 import type { MatchupConfig } from '../StratApp';
 import FormationChip from './FormationChip';
 
 interface SetupSectionProps {
-  data: FormationData;
+  opponentFormations: string[];
+  oppLoading: boolean;
   config: MatchupConfig;
   onConfigChange: (config: MatchupConfig) => void;
   available: FormationMatchup[];
@@ -26,7 +27,8 @@ interface SetupSectionProps {
 }
 
 const SetupSection: React.FC<SetupSectionProps> = ({
-  data,
+  opponentFormations,
+  oppLoading,
   config,
   onConfigChange,
   available,
@@ -43,8 +45,8 @@ const SetupSection: React.FC<SetupSectionProps> = ({
   const { t } = useI18n();
 
   const opponentOptions = useMemo(
-    () => getOpponentFormations(data).map((f) => ({ value: f, label: f })),
-    [data],
+    () => opponentFormations.map((f) => ({ value: f, label: f })),
+    [opponentFormations],
   );
 
   const tierOptions = TIERS.map((tier) => ({ value: tier, label: t(tierLabelKeys[tier]) }));
@@ -106,6 +108,11 @@ const SetupSection: React.FC<SetupSectionProps> = ({
         <section className="rounded-lg border border-edge bg-surface p-4 shadow-card md:p-5 lg:col-span-8">
           {!configReady ? (
             <p className="py-12 text-center text-ink-muted">{t('setup.selectFormation')}</p>
+          ) : oppLoading ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-12">
+              <span className="size-6 animate-spin rounded-full border-2 border-edge border-t-accent" />
+              <p className="text-sm text-ink-muted">{t('loading.text')}</p>
+            </div>
           ) : available.length === 0 ? (
             <p className="py-12 text-center text-ink-muted">{t('errors.noFormations')}</p>
           ) : (

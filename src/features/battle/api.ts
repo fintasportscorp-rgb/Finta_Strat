@@ -1,19 +1,38 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import type { FormationData } from './types';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type { OpponentData } from './types';
 
-async function fetchFormationData(): Promise<FormationData> {
-  const res = await fetch('/data/formation-battles.json');
-  if (!res.ok) throw new Error('Error loading formation data');
-  return res.json() as Promise<FormationData>;
+async function fetchOpponentIndex(): Promise<string[]> {
+  const res = await fetch('/data/opponent/index.json');
+  if (!res.ok) throw new Error('Error loading formation index');
+  const json = await res.json() as { formations: string[] };
+  return json.formations;
 }
 
-/** The full battle dataset (~48 MB) — loaded once, cached for the session. */
-export function useFormationData(): FormationData {
+async function fetchOpponentData(oppFormation: string): Promise<OpponentData> {
+  const filename = oppFormation.replace(/\//g, '_');
+  const res = await fetch(`/data/opponent/${filename}.json`);
+  if (!res.ok) throw new Error(`Error loading data for ${oppFormation}`);
+  return res.json() as Promise<OpponentData>;
+}
+
+/** Tiny index file (~500 B) — suspends briefly then renders the full UI. */
+export function useOpponentIndex(): string[] {
   const { data } = useSuspenseQuery({
-    queryKey: ['formation-battles'],
-    queryFn: fetchFormationData,
+    queryKey: ['opponent-index'],
+    queryFn: fetchOpponentIndex,
     staleTime: Infinity,
     gcTime: Infinity,
   });
   return data;
+}
+
+/** Lazy-loads the per-opponent file only when a formation is selected. */
+export function useOpponentData(oppFormation: string) {
+  return useQuery({
+    queryKey: ['opponent', oppFormation],
+    queryFn: () => fetchOpponentData(oppFormation),
+    enabled: !!oppFormation,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 }

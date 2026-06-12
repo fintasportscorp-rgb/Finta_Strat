@@ -42,11 +42,17 @@ export interface Battle {
   other_stats?: MetricSource;
 }
 
-/** data[yourFormation][yourTier][opponentFormation][opponentTier] */
+/** data[yourFormation][yourTier][opponentFormation][opponentTier] — full dataset (legacy) */
 export type FormationData = Record<
   string,
   Partial<Record<Tier, Record<string, Partial<Record<Tier, Battle>>>>>
 >;
+
+/**
+ * Per-opponent slice: opponent/{oppFormation}.json
+ * data[yourFormation][yourTier][oppTier] = Battle
+ */
+export type OpponentData = Record<string, Partial<Record<Tier, Partial<Record<Tier, Battle>>>>>;
 
 export interface FormationMatchup {
   formation: string;

@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import AppLoader from '~components/AppLoader';
 import ScrollTopButton from '~components/ScrollTopButton';
 import { useI18n } from '@/lib/i18n';
-import { useFormationData } from './api';
+import { useOpponentData, useOpponentIndex } from './api';
 import { getAvailableFormations, sortMatchups } from './analysis';
 import { tierLabelKeys } from './metrics';
 import type { CategoryKey, FormationMatchup, SortMode, Tier } from './types';
@@ -21,7 +21,7 @@ export interface MatchupConfig {
 }
 
 const StratApp: React.FC = () => {
-  const data = useFormationData();
+  const opponentFormations = useOpponentIndex();
   const { t } = useI18n();
 
   const [config, setConfig] = useState<MatchupConfig>({
@@ -37,10 +37,12 @@ const StratApp: React.FC = () => {
   const [guideOpen, setGuideOpen] = useState(false);
   const [percentileOpen, setPercentileOpen] = useState(false);
 
+  const { data: oppData, isLoading: oppLoading } = useOpponentData(config.oppFormation);
+
   const available = useMemo(() => {
-    if (!config.oppFormation) return [];
-    return getAvailableFormations(data, config.yourTier, config.oppFormation, config.oppTier);
-  }, [data, config]);
+    if (!config.oppFormation || !oppData) return [];
+    return getAvailableFormations(oppData, config.yourTier, config.oppTier);
+  }, [oppData, config]);
 
   const updateConfig = useCallback((next: MatchupConfig) => {
     setConfig(next);
@@ -102,10 +104,11 @@ const StratApp: React.FC = () => {
       <main className="mx-auto w-full max-w-[1400px] px-4 pb-28 pt-4 md:px-6 lg:px-8 lg:pb-12">
         {section === 'setup' ? (
           <SetupSection
-            data={data}
+            opponentFormations={opponentFormations}
             config={config}
             onConfigChange={updateConfig}
             available={available}
+            oppLoading={oppLoading}
             selected={selected}
             onToggle={toggleFormation}
             onSelectAll={selectAll}

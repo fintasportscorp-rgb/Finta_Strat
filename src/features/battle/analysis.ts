@@ -8,34 +8,21 @@ import {
 import type {
   Battle,
   CategoryKey,
-  FormationData,
   FormationMatchup,
+  OpponentData,
   SortMode,
   Tier,
 } from './types';
 
-/** All distinct opponent formations present anywhere in the dataset, sorted. */
-export function getOpponentFormations(data: FormationData): string[] {
-  const opponents = new Set<string>();
-  for (const byTier of Object.values(data)) {
-    for (const byOpponent of Object.values(byTier)) {
-      if (!byOpponent) continue;
-      for (const opp of Object.keys(byOpponent)) opponents.add(opp);
-    }
-  }
-  return [...opponents].sort();
-}
-
-/** Your formations that have battle data for the chosen matchup. */
+/** Your formations that have battle data for the chosen matchup (uses per-opponent slice). */
 export function getAvailableFormations(
-  data: FormationData,
+  data: OpponentData,
   yourTier: Tier,
-  oppFormation: string,
   oppTier: Tier,
 ): FormationMatchup[] {
   const result: FormationMatchup[] = [];
   for (const [formation, byTier] of Object.entries(data)) {
-    const battle = byTier[yourTier]?.[oppFormation]?.[oppTier];
+    const battle = byTier[yourTier]?.[oppTier];
     if (battle?.battle_summary) result.push({ formation, battle });
   }
   return result;
