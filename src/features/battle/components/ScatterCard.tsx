@@ -12,7 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useI18n } from '@/lib/i18n';
-import { usePrefersReducedMotion, useTheme } from '@/lib/theme';
+import { usePrefersReducedMotion } from '@/lib/theme';
 import { seriesColor } from '../metrics';
 import type { FormationMatchup } from '../types';
 
@@ -26,15 +26,16 @@ interface ScatterPoint {
   formation: string;
 }
 
+const axisTickStyle = {
+  fill: 'var(--chart-axis-text)',
+  fontFamily: 'var(--font-stat)',
+  fontSize: 12,
+} as const;
+
 /** Win rate vs sample size — reliability/performance trade-off. */
 const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
   const { t } = useI18n();
   const reducedMotion = usePrefersReducedMotion();
-  const { theme } = useTheme();
-
-  const isDark = theme === 'dark';
-  const axisTextColor = isDark ? '#93a8c7' : '#44587a';
-  const labelColor = isDark ? '#e8f0fc' : '#0e1b2e';
 
   const points: ScatterPoint[] = useMemo(
     () =>
@@ -56,12 +57,6 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
     ];
   }, [points]);
 
-  const axisStyle = {
-    fill: axisTextColor,
-    fontFamily: 'var(--font-stat)',
-    fontSize: 12,
-  };
-
   return (
     <section className="rounded-lg border border-edge bg-surface p-4 shadow-card md:p-5">
       <h3 className="display-caps text-sm font-bold text-ink">
@@ -75,13 +70,13 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
               type="number"
               dataKey="x"
               name={t('setup.sampleSize')}
-              tick={axisStyle}
+              tick={{ style: axisTickStyle }}
               stroke="var(--chart-grid)"
               label={{
                 value: t('setup.sampleSize'),
                 position: 'insideBottom',
                 offset: -2,
-                ...axisStyle,
+                style: axisTickStyle,
               }}
             />
             <YAxis
@@ -89,18 +84,26 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
               dataKey="y"
               name={t('setup.winRate')}
               domain={[yMin, yMax]}
-              tick={axisStyle}
+              tick={{ style: axisTickStyle }}
               stroke="var(--chart-grid)"
               width={44}
               label={{
                 value: `${t('setup.winRate')} %`,
                 angle: -90,
                 position: 'insideLeft',
-                ...axisStyle,
+                style: axisTickStyle,
               }}
             />
-            {/* Confidence threshold + coin-flip reference lines */}
-            <ReferenceLine x={30} stroke="var(--draw)" strokeDasharray="4 4" label={{ value: 'n=30', position: 'top', ...axisStyle, fill: 'var(--draw)' }} />
+            <ReferenceLine
+              x={30}
+              stroke="var(--draw)"
+              strokeDasharray="4 4"
+              label={{
+                value: 'n=30',
+                position: 'top',
+                style: { ...axisTickStyle, fill: 'var(--draw)' },
+              }}
+            />
             <ReferenceLine y={50} stroke="var(--chart-axis-text)" strokeDasharray="4 4" />
             <RechartsTooltip
               cursor={{ strokeDasharray: '3 3', stroke: 'var(--chart-axis-text)' }}
@@ -116,13 +119,19 @@ const ScatterCard: React.FC<ScatterCardProps> = ({ comparison }) => {
                 fontFamily: 'var(--font-stat)',
                 fontSize: 12,
               }}
+              itemStyle={{ color: 'var(--text-primary)' }}
             />
             <Scatter data={points} isAnimationActive={!reducedMotion}>
               <LabelList
                 dataKey="formation"
                 position="top"
                 offset={10}
-                style={{ ...axisStyle, fill: labelColor, fontWeight: 600 }}
+                style={{
+                  fill: 'var(--text-primary)',
+                  fontFamily: 'var(--font-stat)',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
               />
               {points.map((point, i) => (
                 <Cell

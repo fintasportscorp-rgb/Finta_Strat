@@ -91,8 +91,11 @@ const NavRail: React.FC<NavRailProps> = ({ active, analysisReady, onSelect }) =>
       {/* Desktop rail */}
       <nav
         aria-label={t('nav.navigation')}
-        className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col gap-1 border-r border-edge bg-surface px-3 pb-4 pt-[4.5rem] lg:flex"
+        className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col gap-1 border-r border-edge bg-surface px-3 pb-4 pt-4 lg:flex"
       >
+        <a href="/" className="mb-3 flex shrink-0 items-center px-3">
+          <img src="/logo.png" alt="Finta Strat" className="h-12 w-auto" />
+        </a>
         <p className="display-caps mb-1 px-3 text-[11px] font-bold text-ink-muted">
           {t('nav.navigation')}
         </p>
